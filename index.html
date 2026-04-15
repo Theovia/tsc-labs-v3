@@ -1889,6 +1889,86 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
   /* Footer / wrappers no deben exceder viewport */
   section, .container, .calc-wrapper, .calc-inner { max-width: 100vw; }
 }
+
+
+/* ---- HONEST CALC: SELECT, CHIPS, TIER INDICATOR ---- */
+.calc-select {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(242, 237, 228, 0.25);
+  color: var(--cream);
+  padding: 14px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C0C0C0' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.calc-select:hover, .calc-select:focus { border-color: var(--silver); outline: none; }
+.calc-select optgroup { background: var(--ink); color: var(--silver); font-style: italic; }
+.calc-select option { background: var(--ink); color: var(--cream); padding: 8px; }
+
+.chip-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.chip {
+  background: transparent;
+  border: 1px solid rgba(242, 237, 228, 0.25);
+  color: var(--cream);
+  padding: 12px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  line-height: 1.3;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.chip:hover { border-color: var(--silver); color: var(--silver); }
+.chip.active {
+  background: linear-gradient(135deg, #5A5A5A, #B8B8B8, #5A5A5A);
+  border-color: var(--silver);
+  color: var(--ink);
+}
+.chip .chip-sub { font-size: 8px; opacity: 0.7; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.chip.active .chip-sub { color: var(--ink-soft); opacity: 0.85; }
+
+.tier-indicator {
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+.field-help {
+  margin-top: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: rgba(242, 237, 228, 0.45);
+  text-transform: none;
+}
+.calc-line.sep { border-bottom-style: solid !important; border-bottom-color: rgba(242, 237, 228, 0.3) !important; }
+.calc-line .meta { font-size: 8px; opacity: 0.5; margin-left: 6px; }
+
+@media (max-width: 768px) {
+  .calc-select { font-size: 11px; padding: 12px 14px; padding-right: 36px; }
+  .chip-group { grid-template-columns: 1fr; gap: 6px; }
+  .chip { flex-direction: row; align-items: baseline; justify-content: space-between; padding: 12px 14px; }
+  .chip .chip-sub { font-size: 8px; }
+  .tier-indicator, .field-help { font-size: 8px; }
+}
+
 </style>
 </head>
 <body>
@@ -2287,8 +2367,86 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
     <div class="calc-wrapper reveal">
       <div class="calc-inner">
         <div class="calc-header">
-          <h3>Proyecta los <em>números</em><br>de tu primer lanzamiento.</h3>
-          <p>Selecciona un producto del catálogo, ajusta el volumen de producción y el precio público sugerido. Las cifras se calculan en vivo sobre nuestros precios reales de mayoreo en TSC LABS — los mismos precios que aplicarían si la primera reunión arranca mañana.</p>
+          <h3>Proyecta los <em>números reales</em><br>de tu primer lanzamiento.</h3>
+          <p>Unit economics honesto: catálogo completo de 20 SKUs con precios reales TSC (menudeo vs mayoreo se aplica automático según volumen), canal de venta con descuento de retailer, envase custom opcional, e IVA 16% deducido. Utilidad neta real.</p>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-controls">
+
+            <div class="calc-field">
+              <label>↳ PRODUCTO</label>
+              <select class="calc-select" id="productSel"></select>
+            </div>
+
+            <div class="calc-field">
+              <label>↳ VOLUMEN DE PRODUCCIÓN <span class="val" id="volVal">1,000 unidades</span></label>
+              <input type="range" id="volume" min="100" max="10000" value="1000" step="50">
+              <div class="tier-indicator" id="tierInd">— Tarifa mayoreo (+400 piezas)</div>
+            </div>
+
+            <div class="calc-field">
+              <label>↳ PRECIO PÚBLICO SUGERIDO <span class="val" id="priceVal">$450 MXN</span></label>
+              <input type="range" id="price" min="100" max="1500" value="450" step="10">
+              <div class="field-help">Precio final de venta al consumidor (incluye IVA)</div>
+            </div>
+
+            <div class="calc-field">
+              <label>↳ CANAL DE VENTA</label>
+              <div class="chip-group" id="channelGroup">
+                <button class="chip active" data-discount="0" data-label="D2C"><strong>D2C directo</strong><span class="chip-sub">0% descuento</span></button>
+                <button class="chip" data-discount="0.45" data-label="Retail"><strong>Retail</strong><span class="chip-sub">Sephora / Palacio · −45%</span></button>
+                <button class="chip" data-discount="0.50" data-label="Mayorista"><strong>Mayorista</strong><span class="chip-sub">Distribuidor · −50%</span></button>
+              </div>
+            </div>
+
+            <div class="calc-field">
+              <label>↳ ENVASE CUSTOM <span class="val" id="pkgVal">sin envase custom</span></label>
+              <input type="range" id="pkg" min="0" max="60" value="0" step="1">
+              <div class="field-help">+MXN / unidad por envase primario + etiqueta personalizada (0–60)</div>
+            </div>
+
+          </div>
+
+          <div class="calc-output">
+            <div class="calc-line">
+              <div class="label">Producto</div>
+              <div class="value" id="outProduct" style="font-size:14px;">—</div>
+            </div>
+            <div class="calc-line">
+              <div class="label">Pago a TSC <span class="meta" id="outTierNote">—</span></div>
+              <div class="value" id="outTSC">$0</div>
+            </div>
+            <div class="calc-line" id="envaseLine" style="display:none;">
+              <div class="label">Envase custom <span class="meta" id="outPkgNote">—</span></div>
+              <div class="value" id="outEnvase">$0</div>
+            </div>
+            <div class="calc-line sep">
+              <div class="label">Inversión total</div>
+              <div class="value" id="outInvest">$0</div>
+            </div>
+            <div class="calc-line">
+              <div class="label">Ingreso bruto <span class="meta" id="outCanalTag">(D2C)</span></div>
+              <div class="value" id="outRevenue">$0</div>
+            </div>
+            <div class="calc-line">
+              <div class="label">(−) IVA 16%</div>
+              <div class="value" id="outIva">$0</div>
+            </div>
+            <div class="calc-line">
+              <div class="label">Utilidad neta</div>
+              <div class="value" id="outProfit">$0</div>
+            </div>
+            <div class="calc-line highlight">
+              <div class="label">Margen neto</div>
+              <div class="value silver-mercury" id="outMargin">0%</div>
+            </div>
+          </div>
+        </div>
+
+        <p class="calc-disclaimer">
+          Precios TSC verificados contra catálogo oficial 2024. Menudeo se aplica a 100–399 piezas, mayoreo a partir de 400. Canal retail asume descuento típico 45% (Sephora/Palacio/Liverpool); mayorista 50% (distribuidor). IVA 16% deducido del ingreso bruto (precios públicos en MX incluyen IVA). Envase custom es estimado referencial — el costo real depende de material, cantidad y proveedor. No incluye branding, marketing, distribución ni costos indirectos. Valores finales se confirman tras reunión de scoping.
+        </p>
         </div>
 
         <div class="calc-grid">
@@ -2737,68 +2895,113 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
 </footer>
 
 <script>
-// Calculator
-const pills = document.querySelectorAll('.product-pill');
+// ============ HONEST CALCULATOR ============
+// Precios verificados contra CATÁLOGO MAQUILA 2024 (TSC LABS)
+// m = menudeo (100-300 piezas), M = mayoreo (+400 piezas)
+const products = [
+  { id:'esp-grasa',   name:'Espuma Dermolimpiadora · Piel grasa · 150mL',  fam:'Dermolimpiadores', m:55,  M:47,  sug:359, max:800  },
+  { id:'esp-normal',  name:'Espuma Dermolimpiadora · Piel normal · 150mL', fam:'Dermolimpiadores', m:55,  M:47,  sug:359, max:800  },
+  { id:'esp-seca',    name:'Espuma Dermolimpiadora · Piel seca · 150mL',   fam:'Dermolimpiadores', m:61,  M:51,  sug:379, max:800  },
+  { id:'ton-grasa',   name:'Tónico · Piel grasa · 150mL',                  fam:'Tónicos',          m:64,  M:54,  sug:299, max:700  },
+  { id:'ton-normal',  name:'Tónico · Piel normal · 150mL',                 fam:'Tónicos',          m:80,  M:68,  sug:349, max:800  },
+  { id:'ton-seca',    name:'Tónico · Piel seca · 150mL',                   fam:'Tónicos',          m:90,  M:77,  sug:389, max:900  },
+  { id:'suero-hidra', name:'Suero Ultra Hidratante · 30mL',                fam:'Sueros',           m:92,  M:79,  sug:650, max:1500 },
+  { id:'suero-vitc',  name:'Suero Vitamina C · 30mL',                      fam:'Sueros',           m:71,  M:60,  sug:450, max:1200 },
+  { id:'crema-grasa', name:'Crema Gel Facial · Piel grasa · 60mL',         fam:'Cremas faciales',  m:57,  M:49,  sug:425, max:1000 },
+  { id:'crema-seca',  name:'Crema Gel Facial · Piel seca · 60mL',          fam:'Cremas faciales',  m:53,  M:45,  sug:399, max:1000 },
+  { id:'crema-normal',name:'Crema Gel Facial · Piel normal · 60mL',        fam:'Cremas faciales',  m:52,  M:44,  sug:399, max:1000 },
+  { id:'crema-rep',   name:'Crema Gel Facial Reparadora · 60mL',           fam:'Cremas faciales',  m:101, M:86,  sug:650, max:1500 },
+  { id:'crema-noche', name:'Crema Gel Facial de Noche · 60mL',             fam:'Cremas faciales',  m:127, M:108, sug:699, max:1800 },
+  { id:'mask',        name:'Mascarilla de Arcilla · 60mL',                 fam:'Especialidades',   m:37,  M:32,  sug:299, max:700  },
+  { id:'corp',        name:'Crema Corporal · 250mL',                       fam:'Especialidades',   m:122, M:104, sug:549, max:1200 },
+  { id:'desmaq',      name:'Desmaquillante Bifásico · 100mL',              fam:'Especialidades',   m:78,  M:66,  sug:449, max:1000 },
+  { id:'jabon',       name:'Jabón Facial Líquido · Piel grasa · 120mL',    fam:'Especialidades',   m:55,  M:47,  sug:299, max:700  },
+  { id:'ojos-crema',  name:'Contorno de Ojos · Crema gel · 15mL',          fam:'Contorno de ojos', m:37,  M:32,  sug:499, max:1200 },
+  { id:'ojos-suero',  name:'Contorno de Ojos · Suero · 15mL',              fam:'Contorno de ojos', m:53,  M:45,  sug:599, max:1400 },
+  { id:'barba',       name:'Bálsamo Crecimiento de Barba · 30mL',          fam:'Línea masculina',  m:52,  M:44,  sug:349, max:800  },
+];
+
+const sel = document.getElementById('productSel');
+const fams = {};
+products.forEach(p => { (fams[p.fam] = fams[p.fam] || []).push(p); });
+Object.keys(fams).forEach(famName => {
+  const og = document.createElement('optgroup');
+  og.label = famName;
+  fams[famName].forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.id; o.textContent = p.name;
+    og.appendChild(o);
+  });
+  sel.appendChild(og);
+});
+sel.value = 'suero-vitc';
+
+let current = products.find(p => p.id === sel.value);
+let discount = 0;
+let channelLabel = 'D2C';
+
 const volSlider = document.getElementById('volume');
 const priceSlider = document.getElementById('price');
-const volVal = document.getElementById('volVal');
-const priceVal = document.getElementById('priceVal');
-const outProduct = document.getElementById('outProduct');
-const outInvest = document.getElementById('outInvest');
-const outRevenue = document.getElementById('outRevenue');
-const outProfit = document.getElementById('outProfit');
-const outMargin = document.getElementById('outMargin');
+const pkgSlider = document.getElementById('pkg');
 
-let currentCost = 60;
-let currentName = 'Suero Vitamina C 30mL';
+const $ = id => document.getElementById(id);
+const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
 
-function fmt(n) {
-  return '$' + Math.round(n).toLocaleString('en-US');
-}
+function applyProduct() { priceSlider.max = current.max; priceSlider.value = current.sug; }
 
 function recalc() {
   const vol = parseInt(volSlider.value);
   const price = parseInt(priceSlider.value);
-  const invest = vol * currentCost;
-  const revenue = vol * price;
-  const profit = revenue - invest;
-  const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+  const pkg = parseInt(pkgSlider.value);
+  const isMayoreo = vol >= 400;
+  const tier = isMayoreo ? 'mayoreo' : 'menudeo';
+  const unitCostTSC = isMayoreo ? current.M : current.m;
+  const tscTotal = vol * unitCostTSC;
+  const pkgTotal = vol * pkg;
+  const invest = tscTotal + pkgTotal;
+  const revenueGross = vol * price * (1 - discount);
+  const revenueNet = revenueGross / 1.16;
+  const ivaAmount = revenueGross - revenueNet;
+  const profit = revenueNet - invest;
+  const margin = revenueNet > 0 ? (profit / revenueNet) * 100 : 0;
 
-  volVal.textContent = vol.toLocaleString('en-US') + ' unidades';
-  priceVal.textContent = '$' + price + ' MXN';
-  outProduct.textContent = currentName;
-  outInvest.textContent = fmt(invest);
-  outRevenue.textContent = fmt(revenue);
-  outProfit.textContent = fmt(profit);
-  outMargin.textContent = margin.toFixed(1) + '%';
+  $('volVal').textContent = vol.toLocaleString('en-US') + ' unidades';
+  $('priceVal').textContent = '$' + price + ' MXN';
+  $('pkgVal').textContent = pkg === 0 ? 'sin envase custom' : '+$' + pkg + ' / unidad';
+  $('tierInd').textContent = isMayoreo
+    ? '— Tarifa mayoreo · +400 piezas · $' + current.M + '/u'
+    : '— Tarifa menudeo · 100–399 piezas · $' + current.m + '/u';
+  $('outProduct').textContent = current.name;
+  $('outTSC').textContent = fmt(tscTotal);
+  $('outTierNote').textContent = '(' + tier + ' · $' + unitCostTSC + '/u)';
+  $('outEnvase').textContent = fmt(pkgTotal);
+  $('outPkgNote').textContent = '($' + pkg + '/u)';
+  $('envaseLine').style.display = pkg === 0 ? 'none' : 'flex';
+  $('outInvest').textContent = fmt(invest);
+  $('outRevenue').textContent = fmt(revenueGross);
+  $('outCanalTag').textContent = '(' + channelLabel + (discount > 0 ? ' · −' + Math.round(discount*100) + '%' : '') + ')';
+  $('outIva').textContent = fmt(ivaAmount);
+  $('outProfit').textContent = fmt(profit);
+  $('outProfit').style.color = profit < 0 ? '#ff6b6b' : '';
+  $('outMargin').textContent = margin.toFixed(1) + '%';
+  $('outMargin').style.color = margin < 0 ? '#ff6b6b' : '';
 }
 
-pills.forEach(pill => {
-  pill.addEventListener('click', () => {
-    pills.forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
-    currentCost = parseFloat(pill.dataset.cost);
-    currentName = pill.dataset.name;
-    const suggested = parseInt(pill.dataset.suggested);
-    priceSlider.value = suggested;
+sel.addEventListener('change', () => { current = products.find(p => p.id === sel.value); applyProduct(); recalc(); });
+document.querySelectorAll('#channelGroup .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#channelGroup .chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    discount = parseFloat(chip.dataset.discount);
+    channelLabel = chip.dataset.label;
     recalc();
   });
 });
-
 volSlider.addEventListener('input', recalc);
 priceSlider.addEventListener('input', recalc);
+pkgSlider.addEventListener('input', recalc);
+applyProduct();
 recalc();
-
-// Reveal on scroll
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('in');
-    }
-  });
-}, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
-
-document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => observer.observe(el));
 </script>
 
 </body>

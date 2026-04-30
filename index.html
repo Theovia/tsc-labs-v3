@@ -2931,125 +2931,22 @@ pkgSlider.addEventListener('input', recalc);
 applyProduct();
 recalc();
 
-// Reveal on scroll handled by GSAP block below.
-// Safety net: si GSAP no carga, fuerza visible
-setTimeout(() => {
-  if (!window.gsap) {
-    document.querySelectorAll('.reveal:not(.in), .reveal-stagger:not(.in)').forEach(el => el.classList.add('in'));
-  }
-}, 2500);
-</script>
-
-<!-- ============ GSAP ENHANCEMENTS ============ -->
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
-<script>
-(function() {
-  if (!window.gsap) { document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => el.classList.add('in')); return; }
-  gsap.registerPlugin(ScrollTrigger);
-  if (window.SplitText) gsap.registerPlugin(SplitText);
-
-  const isMobile = window.matchMedia('(max-width: 768px)').matches;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (reduced) {
-    document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => el.classList.add('in'));
-    return;
-  }
-
-  // Native scroll preserved — Lenis removed (felt laggy on trackpads)
-
-  if (!isMobile) {
-    gsap.utils.toArray('.reveal').forEach(el => {
-      gsap.set(el, { opacity: 0, y: 28 });
-      ScrollTrigger.create({
-        trigger: el, start: 'top 88%', once: true,
-        onEnter: () => {
-          gsap.to(el, { opacity: 1, y: 0, duration: 0.95, ease: 'power3.out' });
-          el.classList.add('in');
-        }
-      });
-    });
-    gsap.utils.toArray('.reveal-stagger').forEach(parent => {
-      const kids = Array.from(parent.children);
-      gsap.set(kids, { opacity: 0, y: 24 });
-      ScrollTrigger.create({
-        trigger: parent, start: 'top 85%', once: true,
-        onEnter: () => {
-          gsap.to(kids, { opacity: 1, y: 0, duration: 0.85, stagger: 0.085, ease: 'power3.out' });
-          parent.classList.add('in');
-        }
-      });
-    });
-  }
-
-  // Hero stat counters
-  gsap.utils.toArray('.hero-stat-num').forEach(el => {
-    let textNode = null;
-    for (const n of el.childNodes) {
-      if (n.nodeType === 3 && /\d/.test(n.textContent)) { textNode = n; break; }
+// ============ REVEAL ON SCROLL ============
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      revealObserver.unobserve(entry.target);
     }
-    if (!textNode) return;
-    const m = textNode.textContent.match(/^(\D*)([0-9.]+)(.*)$/);
-    if (!m) return;
-    const prefix = m[1], target = parseFloat(m[2]);
-    const decimals = (m[2].split('.')[1] || '').length;
-    const obj = { v: 0 };
-    textNode.textContent = prefix + (0).toFixed(decimals) + m[3];
-    ScrollTrigger.create({
-      trigger: el, start: 'top 92%', once: true,
-      onEnter: () => {
-        gsap.to(obj, {
-          v: target, duration: 1.6, ease: 'power2.out',
-          onUpdate: () => { textNode.textContent = prefix + obj.v.toFixed(decimals) + m[3]; }
-        });
-      }
-    });
   });
+}, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
 
-  // Hero title — kill CSS line-rise, redo with GSAP for smoother stagger
-  const heroTitle = document.querySelector('.hero-title');
-  if (heroTitle) {
-    const lines = heroTitle.querySelectorAll('.line');
-    if (lines.length) {
-      lines.forEach(l => { l.style.animation = 'none'; l.style.opacity = '0'; l.style.transform = 'translateY(36px)'; });
-      gsap.to(lines, { opacity: 1, y: 0, duration: 1.1, stagger: 0.13, ease: 'power3.out', delay: 0.15 });
-    }
-  }
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => revealObserver.observe(el));
 
-  // SplitText: section titles
-  if (window.SplitText) {
-    gsap.utils.toArray('.section-title').forEach(t => {
-      try {
-        const split = new SplitText(t, { type: 'words', wordsClass: 'st-word' });
-        gsap.set(split.words, { opacity: 0, y: 22 });
-        ScrollTrigger.create({
-          trigger: t, start: 'top 86%', once: true,
-          onEnter: () => gsap.to(split.words, { opacity: 1, y: 0, duration: 0.7, stagger: 0.03, ease: 'power3.out' })
-        });
-      } catch (e) {}
-    });
-  }
-
-  // Magnetic hover
-  if (!isMobile && window.matchMedia('(hover: hover)').matches) {
-    document.querySelectorAll('.channel, .why-card-link').forEach(el => {
-      let bounds = null;
-      el.addEventListener('mouseenter', () => { bounds = el.getBoundingClientRect(); });
-      el.addEventListener('mousemove', e => {
-        if (!bounds) bounds = el.getBoundingClientRect();
-        const x = (e.clientX - bounds.left - bounds.width / 2) * 0.12;
-        const y = (e.clientY - bounds.top - bounds.height / 2) * 0.12;
-        gsap.to(el, { x, y, duration: 0.5, ease: 'power3.out' });
-      });
-      el.addEventListener('mouseleave', () => {
-        bounds = null;
-        gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.4)' });
-      });
-    });
-  }
-})();
+// Safety net: si por cualquier razón el observer no dispara en 3s, forzar visible
+setTimeout(() => {
+  document.querySelectorAll('.reveal:not(.in), .reveal-stagger:not(.in)').forEach(el => el.classList.add('in'));
+}, 3000);
 </script>
 
 </body>

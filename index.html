@@ -294,17 +294,6 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* When GSAP runs, it controls the hero entrance — CSS keyframes are disabled */
-body.has-gsap .hero-title .line,
-body.has-gsap .hero-sub,
-body.has-gsap .hero-right,
-body.has-gsap .hero-inline-cta,
-body.has-gsap .topbar-logo,
-body.has-gsap .scroll-indicator {
-  animation: none !important;
-  opacity: 0;
-}
-
 .hero-sub {
   font-size: 20px;
   line-height: 1.55;
@@ -2929,98 +2918,6 @@ document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => revealObserv
 setTimeout(() => {
   document.querySelectorAll('.reveal:not(.in), .reveal-stagger:not(.in)').forEach(el => el.classList.add('in'));
 }, 3000);
-</script>
-
-<!-- GSAP — lean, focused. Skipped on mobile and reduced-motion. -->
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
-<script>
-(function () {
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var isMobile = window.matchMedia('(max-width: 768px)').matches;
-  if (reduce || isMobile) return;
-  if (typeof gsap === 'undefined') return;
-
-  gsap.registerPlugin(ScrollTrigger);
-  document.body.classList.add('has-gsap');
-
-  // ---------- Hero entrance timeline ----------
-  var tl = gsap.timeline({ defaults: { duration: 0.85, ease: 'power3.out' } });
-  tl.from('.topbar-logo', { y: -10, opacity: 0, duration: 0.7 })
-    .from('.hero-title .line', { y: 36, opacity: 0, stagger: 0.13, duration: 0.95, ease: 'power3.out' }, '-=0.35')
-    .from('.hero-sub', { y: 16, opacity: 0 }, '-=0.45')
-    .from('.hero-inline-cta', { y: 10, opacity: 0, duration: 0.7 }, '-=0.55')
-    .from('.hero-right', { opacity: 0, duration: 0.6 }, '-=0.7')
-    .from('.hero-stat', { y: 20, opacity: 0, stagger: 0.08, duration: 0.7 }, '-=0.4')
-    .from('.scroll-indicator', { opacity: 0, duration: 0.6 }, '-=0.2');
-
-  // ---------- Hero stat counters (run on entrance) ----------
-  function animateNumberNode(el, dur) {
-    if (!el) return;
-    // Find the first text node containing digits
-    var textNode = null;
-    for (var i = 0; i < el.childNodes.length; i++) {
-      var n = el.childNodes[i];
-      if (n.nodeType === 3 && /[0-9]/.test(n.nodeValue)) { textNode = n; break; }
-    }
-    if (!textNode) return;
-    var raw = textNode.nodeValue;
-    var m = raw.match(/^(\D*)([0-9.]+)(.*)$/);
-    if (!m) return;
-    var prefix = m[1], numStr = m[2], suffix = m[3];
-    var target = parseFloat(numStr);
-    if (isNaN(target)) return;
-    var decimals = (numStr.split('.')[1] || '').length;
-    var obj = { v: 0 };
-    gsap.to(obj, {
-      v: target,
-      duration: dur || 1.6,
-      ease: 'power2.out',
-      onUpdate: function () {
-        textNode.nodeValue = prefix + obj.v.toFixed(decimals) + suffix;
-      }
-    });
-  }
-  // Hero stats: run after the timeline starts so user sees the count
-  gsap.delayedCall(0.6, function () {
-    document.querySelectorAll('.hero-stat-num').forEach(function (el) {
-      animateNumberNode(el, 1.6);
-    });
-  });
-
-  // ---------- Thesis stats: count up on enter (no pin — safer) ----------
-  var thesisStats = document.querySelectorAll('#thesis .thesis-stat .num');
-  if (thesisStats.length) {
-    ScrollTrigger.create({
-      trigger: '#thesis .thesis-stats',
-      start: 'top 80%',
-      once: true,
-      onEnter: function () {
-        thesisStats.forEach(function (el) { animateNumberNode(el, 1.4); });
-      }
-    });
-  }
-
-  // ---------- CTA channels — magnetic hover (only 3 buttons, hover devices only) ----------
-  if (window.matchMedia('(hover: hover)').matches) {
-    document.querySelectorAll('.cta-channels .channel').forEach(function (el) {
-      var rect = null;
-      el.addEventListener('mouseenter', function () { rect = el.getBoundingClientRect(); });
-      el.addEventListener('mousemove', function (e) {
-        if (!rect) rect = el.getBoundingClientRect();
-        var cx = rect.left + rect.width / 2;
-        var cy = rect.top + rect.height / 2;
-        var dx = (e.clientX - cx) * 0.12;
-        var dy = (e.clientY - cy) * 0.12;
-        gsap.to(el, { x: dx, y: dy, duration: 0.4, ease: 'power3.out' });
-      });
-      el.addEventListener('mouseleave', function () {
-        rect = null;
-        gsap.to(el, { x: 0, y: 0, duration: 0.9, ease: 'elastic.out(1, 0.4)' });
-      });
-    });
-  }
-})();
 </script>
 
 </body>

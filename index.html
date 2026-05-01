@@ -294,6 +294,17 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* When GSAP runs, it controls the hero entrance — CSS keyframes are disabled */
+body.has-gsap .hero-title .line,
+body.has-gsap .hero-sub,
+body.has-gsap .hero-right,
+body.has-gsap .hero-inline-cta,
+body.has-gsap .topbar-logo,
+body.has-gsap .scroll-indicator {
+  animation: none !important;
+  opacity: 0;
+}
+
 .hero-sub {
   font-size: 20px;
   line-height: 1.55;
@@ -302,6 +313,29 @@ body::before {
   font-weight: 400;
   opacity: 0;
   animation: fade-up 1.2s 1s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+/* Hero inline secondary CTA — hairline professional link */
+.hero-inline-cta {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 6px 0 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--silver-deep);
+  text-decoration: none;
+  border-bottom: 1px solid var(--silver-dark);
+  transition: border-bottom-width 0.2s ease, color 0.25s ease, padding-bottom 0.2s ease;
+  opacity: 0;
+  animation: fade-up 1.2s 1.15s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.hero-inline-cta:hover {
+  color: var(--ink);
+  border-bottom-width: 2px;
+  padding-bottom: 6px;
 }
 
 @keyframes fade-up {
@@ -1772,117 +1806,6 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
 .reveal-stagger.in > *:nth-child(9) { transition-delay: 0.69s; }
 .reveal-stagger.in > *:nth-child(n+10) { transition-delay: 0.77s; }
 
-/* ============ CHAPTER BREAK (CSS-only — dark with subtle light depth) ============ */
-.chapter-break {
-  position: relative;
-  min-height: 70vh;
-  padding: 140px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-top: 1px solid var(--ink);
-  border-bottom: 1px solid var(--ink);
-  background:
-    radial-gradient(ellipse 50% 60% at 20% 30%, rgba(74, 90, 58, 0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 45% 55% at 80% 70%, rgba(196, 150, 80, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(26, 26, 26, 0.3) 0%, transparent 70%),
-    linear-gradient(180deg, #0a0f0a 0%, #080808 50%, #0a0a0a 100%);
-  color: var(--cream);
-}
-/* Subtle "bokeh orbs" */
-.chapter-break::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background:
-    radial-gradient(circle 180px at 12% 18%, rgba(200, 220, 180, 0.06), transparent 60%),
-    radial-gradient(circle 140px at 88% 22%, rgba(230, 200, 150, 0.05), transparent 60%),
-    radial-gradient(circle 220px at 75% 82%, rgba(180, 200, 160, 0.055), transparent 60%),
-    radial-gradient(circle 120px at 30% 75%, rgba(220, 180, 120, 0.04), transparent 60%),
-    radial-gradient(circle 90px at 55% 35%, rgba(255, 240, 200, 0.04), transparent 55%);
-  animation: bokeh-drift 28s ease-in-out infinite;
-}
-/* Vignette layer */
-.chapter-break::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background: radial-gradient(ellipse 80% 100% at 50% 50%, transparent 30%, rgba(8, 8, 8, 0.6) 100%);
-}
-@keyframes bokeh-drift {
-  0%, 100% { transform: translate(0, 0); opacity: 1; }
-  50% { transform: translate(-15px, 8px); opacity: 0.85; }
-}
-.cb-inner {
-  position: relative;
-  z-index: 2;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  align-items: center;
-}
-.cb-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: rgba(242, 237, 228, 0.75);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.cb-eyebrow::before, .cb-eyebrow::after {
-  content: '';
-  width: 40px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--silver), transparent);
-  background-size: 200% 100%;
-  animation: shimmer-line 14s linear infinite;
-}
-.cb-headline {
-  font-family: 'Fraunces', serif;
-  font-weight: 300;
-  font-size: clamp(34px, 5.5vw, 80px);
-  line-height: 1.02;
-  letter-spacing: -0.035em;
-  max-width: 1100px;
-  color: var(--cream);
-  font-variation-settings: "opsz" 144;
-  text-shadow: 0 2px 30px rgba(0,0,0,0.5);
-}
-.cb-headline em { font-style: italic; color: var(--cream); }
-.cb-headline .silver-mercury { font-style: italic; }
-.cb-meta {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: rgba(242, 237, 228, 0.6);
-  max-width: 720px;
-  line-height: 1.8;
-}
-.cb-meta span { color: var(--cream); margin: 0 8px; }
-
-@media (max-width: 900px) {
-  .chapter-break {
-    min-height: auto;
-    padding: 90px 24px;
-  }
-  .cb-inner { gap: 28px; }
-  .cb-headline { font-size: clamp(30px, 7vw, 44px); line-height: 1.08; }
-  .cb-eyebrow { font-size: 10px; }
-  .cb-eyebrow::before, .cb-eyebrow::after { width: 24px; }
-  .cb-meta { font-size: 10px; letter-spacing: 0.1em; }
-}
-
 /* ============ MOBILE HARDENING ============ */
 @media (max-width: 768px) {
   /* Reveal animations OFF en móvil — evita contenido invisible si IntersectionObserver no dispara */
@@ -1981,6 +1904,74 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
   .tier-indicator, .field-help { font-size: 8px; }
 }
 
+/* ============ CALC EXAMPLE BUTTON ============ */
+.calc-example-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.calc-example-btn:hover {
+  background: linear-gradient(135deg, #5A5A5A, #B8B8B8, #5A5A5A);
+  color: var(--ink);
+  border-color: var(--silver);
+}
+.calc-example-btn:active { transform: translateY(1px); }
+@media (max-width: 768px) {
+  .calc-example-btn { font-size: 9px; padding: 9px 12px; letter-spacing: 0.1em; }
+}
+
+/* ============ ABOUT — contributions row (condensed social) ============ */
+.contrib-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line-strong);
+  border: 1px solid var(--line-strong);
+  margin-top: 36px;
+}
+.contrib-cell {
+  background: var(--cream);
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: background 0.4s ease;
+}
+.contrib-cell:hover { background: var(--paper); }
+.contrib-cell .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gray-warm);
+  font-weight: 500;
+}
+.contrib-cell .summary {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.contrib-cell .summary em { font-style: italic; }
+@media (max-width: 900px) {
+  .contrib-row { grid-template-columns: 1fr; }
+}
+
+/* About section spacing between team-grid and contrib-row */
+#about .team-grid + .contrib-row { margin-top: 50px; }
+
 </style>
 </head>
 <body>
@@ -2014,6 +2005,7 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
       <p class="hero-sub">
         Skincare formulado en México por biotecnólogos del ITESM. Listo para etiquetarse con la marca de tu próximo lanzamiento, o para diseñarse desde cero según el brief de tu talento. Con la investigación, los activos, la regulación y la producción cubiertas por nosotros.
       </p>
+      <a class="hero-inline-cta" href="#contacto">→ AGENDA UNA REUNIÓN DE 30 MIN</a>
     </div>
 
     <div class="hero-right">
@@ -2221,15 +2213,6 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
   </div>
 </section>
 
-<!-- CHAPTER BREAK — botanical (antes de Proof) -->
-<section class="chapter-break">
-  <div class="cb-inner">
-    <div class="cb-eyebrow">Capítulo II · La prueba</div>
-    <h2 class="cb-headline">La diferencia no está en lo que añadimos. Está en lo que <em>nos negamos</em> a poner.</h2>
-    <div class="cb-meta">Sin parabenos <span>·</span> sin sulfatos <span>·</span> sin fenoxietanol <span>·</span> sin fragancias sintéticas <span>·</span> sin siliconas baratas</div>
-  </div>
-</section>
-
 <!-- SECTION 05: PROOF -->
 <section id="proof">
   <div class="container">
@@ -2370,7 +2353,10 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
 <section id="calc">
   <div class="container">
     <div class="section-header reveal">
-      <div class="section-num"><span class="num silver-foil">06</span>UNIT ECONOMICS</div>
+      <div class="section-num">
+        <span class="num silver-foil">06</span>UNIT ECONOMICS
+        <button type="button" class="calc-example-btn" id="calcExampleBtn">→ EJEMPLO: Suero Vitamina C × 1,000u</button>
+      </div>
       <h2 class="section-title">Calcula <em>el margen real</em> de un lanzamiento.</h2>
     </div>
 
@@ -2725,45 +2711,12 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
   </div>
 </section>
 
-<!-- SECTION 12: SOCIAL PROOF (talleres / conferencias / expos) -->
-<section id="social">
+<!-- SECTION 12: ABOUT (team + contributions merged) -->
+<section id="about">
   <div class="container">
     <div class="section-header reveal">
-      <div class="section-num"><span class="num silver-foil">12</span>NUESTRO APORTE A LA INDUSTRIA</div>
-      <h2 class="section-title">El equipo que <em>educa</em> a la próxima generación de la industria cosmética mexicana.</h2>
-    </div>
-
-    <div class="social-grid reveal-stagger">
-      <div class="social-cell">
-        <div class="label">→ TALLERES</div>
-        <h3>Educamos a los <em>futuros biotecnólogos</em>.</h3>
-        <p>Impartimos talleres de formulación abiertos, donde mostramos cómo se desarrolla cada uno de nuestros productos. Los asistentes verifican en vivo que las etiquetas dicen exactamente lo que está dentro del frasco. Es nuestra forma de empujar a la industria hacia la transparencia.</p>
-        <div class="footer">→ TALLERES PARA ESTUDIANTES Y PROFESIONALES</div>
-      </div>
-
-      <div class="social-cell">
-        <div class="label">→ CONFERENCIAS</div>
-        <h3>Hablamos en el <em>Tec de Monterrey</em>.</h3>
-        <p>Damos conferencias sobre emprendimiento cosmético, formulación honesta y los retos regulatorios de la industria mexicana. El equipo participa activamente en eventos del ITESM y de otras instituciones académicas que están formando a la próxima generación de biotecnólogos.</p>
-        <div class="footer">→ ITESM · INSTITUCIONES ACADÉMICAS</div>
-      </div>
-
-      <div class="social-cell">
-        <div class="label">→ EXPOS</div>
-        <h3>Presentes en las <em>expos</em> más importantes.</h3>
-        <p>Participamos en expos de belleza y emprendimiento en México (incluyendo Talent Land, donde tenemos presencia anual). Compartimos directamente con consumidores, demostramos productos en vivo y conversamos abiertamente sobre cada ingrediente que usamos.</p>
-        <div class="footer">→ TALENT LAND · EXPOS NACIONALES</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SECTION 13: TEAM -->
-<section id="team">
-  <div class="container">
-    <div class="section-header reveal">
-      <div class="section-num"><span class="num silver-foil">13</span>EL EQUIPO</div>
-      <h2 class="section-title">Tres ingenieros. Una <em>obsesión</em> por la formulación honesta.</h2>
+      <div class="section-num"><span class="num silver-foil">12</span>QUIÉN ESTÁ DETRÁS</div>
+      <h2 class="section-title">Tres ingenieros del ITESM con <em>marca propia validada</em> y un compromiso con la transparencia de la industria.</h2>
     </div>
 
     <div class="team-grid reveal-stagger">
@@ -2784,6 +2737,21 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
       </div>
     </div>
 
+    <div class="contrib-row reveal-stagger">
+      <div class="contrib-cell">
+        <div class="tag">→ TALLERES</div>
+        <div class="summary">Talleres de formulación abiertos para estudiantes y profesionales — verificación en vivo de cada ingrediente.</div>
+      </div>
+      <div class="contrib-cell">
+        <div class="tag">→ CONFERENCIAS</div>
+        <div class="summary">Conferencias sobre emprendimiento cosmético y formulación honesta en el ITESM y otras instituciones académicas.</div>
+      </div>
+      <div class="contrib-cell">
+        <div class="tag">→ EXPOS</div>
+        <div class="summary">Presencia anual en Talent Land y expos nacionales de belleza y emprendimiento en México.</div>
+      </div>
+    </div>
+
     <div class="creds-bar reveal">
       <div><strong class="silver-mercury">2021</strong>AÑO DE FUNDACIÓN</div>
       <div><strong class="silver-mercury">ITESM</strong>FORMACIÓN TÉCNICA</div>
@@ -2795,7 +2763,7 @@ footer .left { color: rgba(242, 237, 228, 0.5); }
 </section>
 
 <!-- CTA -->
-<section class="cta">
+<section class="cta" id="contacto">
   <div class="cta-inner">
     <div class="cta-eyebrow">SIGUIENTE PASO →</div>
     <h2>Una reunión.<br>Un brief.<br><em class="silver-foil">Una marca.</em></h2>
@@ -2931,6 +2899,20 @@ pkgSlider.addEventListener('input', recalc);
 applyProduct();
 recalc();
 
+// ============ CALC EXAMPLE BUTTON ============
+const exampleBtn = document.getElementById('calcExampleBtn');
+if (exampleBtn) {
+  exampleBtn.addEventListener('click', () => {
+    sel.value = 'suero-vitc';
+    current = products.find(p => p.id === sel.value);
+    applyProduct();
+    volSlider.value = 1000;
+    priceSlider.value = 450;
+    pkgSlider.value = 0;
+    recalc();
+  });
+}
+
 // ============ REVEAL ON SCROLL ============
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -2947,6 +2929,98 @@ document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => revealObserv
 setTimeout(() => {
   document.querySelectorAll('.reveal:not(.in), .reveal-stagger:not(.in)').forEach(el => el.classList.add('in'));
 }, 3000);
+</script>
+
+<!-- GSAP — lean, focused. Skipped on mobile and reduced-motion. -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (reduce || isMobile) return;
+  if (typeof gsap === 'undefined') return;
+
+  gsap.registerPlugin(ScrollTrigger);
+  document.body.classList.add('has-gsap');
+
+  // ---------- Hero entrance timeline ----------
+  var tl = gsap.timeline({ defaults: { duration: 0.85, ease: 'power3.out' } });
+  tl.from('.topbar-logo', { y: -10, opacity: 0, duration: 0.7 })
+    .from('.hero-title .line', { y: 36, opacity: 0, stagger: 0.13, duration: 0.95, ease: 'power3.out' }, '-=0.35')
+    .from('.hero-sub', { y: 16, opacity: 0 }, '-=0.45')
+    .from('.hero-inline-cta', { y: 10, opacity: 0, duration: 0.7 }, '-=0.55')
+    .from('.hero-right', { opacity: 0, duration: 0.6 }, '-=0.7')
+    .from('.hero-stat', { y: 20, opacity: 0, stagger: 0.08, duration: 0.7 }, '-=0.4')
+    .from('.scroll-indicator', { opacity: 0, duration: 0.6 }, '-=0.2');
+
+  // ---------- Hero stat counters (run on entrance) ----------
+  function animateNumberNode(el, dur) {
+    if (!el) return;
+    // Find the first text node containing digits
+    var textNode = null;
+    for (var i = 0; i < el.childNodes.length; i++) {
+      var n = el.childNodes[i];
+      if (n.nodeType === 3 && /[0-9]/.test(n.nodeValue)) { textNode = n; break; }
+    }
+    if (!textNode) return;
+    var raw = textNode.nodeValue;
+    var m = raw.match(/^(\D*)([0-9.]+)(.*)$/);
+    if (!m) return;
+    var prefix = m[1], numStr = m[2], suffix = m[3];
+    var target = parseFloat(numStr);
+    if (isNaN(target)) return;
+    var decimals = (numStr.split('.')[1] || '').length;
+    var obj = { v: 0 };
+    gsap.to(obj, {
+      v: target,
+      duration: dur || 1.6,
+      ease: 'power2.out',
+      onUpdate: function () {
+        textNode.nodeValue = prefix + obj.v.toFixed(decimals) + suffix;
+      }
+    });
+  }
+  // Hero stats: run after the timeline starts so user sees the count
+  gsap.delayedCall(0.6, function () {
+    document.querySelectorAll('.hero-stat-num').forEach(function (el) {
+      animateNumberNode(el, 1.6);
+    });
+  });
+
+  // ---------- Thesis stats: count up on enter (no pin — safer) ----------
+  var thesisStats = document.querySelectorAll('#thesis .thesis-stat .num');
+  if (thesisStats.length) {
+    ScrollTrigger.create({
+      trigger: '#thesis .thesis-stats',
+      start: 'top 80%',
+      once: true,
+      onEnter: function () {
+        thesisStats.forEach(function (el) { animateNumberNode(el, 1.4); });
+      }
+    });
+  }
+
+  // ---------- CTA channels — magnetic hover (only 3 buttons, hover devices only) ----------
+  if (window.matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.cta-channels .channel').forEach(function (el) {
+      var rect = null;
+      el.addEventListener('mouseenter', function () { rect = el.getBoundingClientRect(); });
+      el.addEventListener('mousemove', function (e) {
+        if (!rect) rect = el.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        var dx = (e.clientX - cx) * 0.12;
+        var dy = (e.clientY - cy) * 0.12;
+        gsap.to(el, { x: dx, y: dy, duration: 0.4, ease: 'power3.out' });
+      });
+      el.addEventListener('mouseleave', function () {
+        rect = null;
+        gsap.to(el, { x: 0, y: 0, duration: 0.9, ease: 'elastic.out(1, 0.4)' });
+      });
+    });
+  }
+})();
 </script>
 
 </body>
